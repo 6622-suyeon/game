@@ -3,8 +3,19 @@
 const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const gcd=(a,b)=>b?gcd(b,a%b):a;
 function fraction(n,d){const g=gcd(n,d);return d/g===1?String(n/g):`${n/g}/${d/g}`;}
-function makeQuestion(grade){
- const a=rand(2,9), b=rand(2,9), type=rand(0,3);
+const topics={5:['약수와 배수','분수의 덧셈','직사각형의 넓이','최소공배수'],6:['분수의 나눗셈','비율과 백분율','직육면체의 부피','비례식']};
+const hints={
+ '약수와 배수':'1부터 차례로 나누어 보세요. 나머지가 0인 수가 약수예요. 짝이 되는 약수를 함께 찾아도 좋아요.',
+ '분수의 덧셈':'분모가 같으니 분모는 그대로 두고 분자끼리 더해 보세요.',
+ '직사각형의 넓이':'가로 길이와 세로 길이를 곱해 보세요. 넓이는 같은 크기의 칸 수예요.',
+ '최소공배수':'두 수의 배수를 각각 적고, 처음으로 겹치는 수를 찾아보세요.',
+ '분수의 나눗셈':'자연수로 나누는 것은 그 자연수의 역수를 곱하는 것과 같아요. 약분도 해 보세요.',
+ '비율과 백분율':'백분율을 100으로 나눈 뒤 전체 학생 수에 곱해 보세요.',
+ '직육면체의 부피':'가로 × 세로로 바닥 넓이를 구하고, 높이를 한 번 더 곱해 보세요.',
+ '비례식':'왼쪽 수가 몇 배가 되었는지 먼저 찾고, 오른쪽 수에도 같은 배수를 곱해 보세요.'
+};
+function makeQuestion(grade,selectedType){
+ const a=rand(2,9), b=rand(2,9), type=Number.isInteger(selectedType)&&selectedType>=0&&selectedType<4?selectedType:rand(0,3);
  if(grade===5){
   if(type===0){const n=a*b;const divisors=Array.from({length:n},(_,i)=>i+1).filter(x=>n%x===0);return {topic:'약수와 배수',text:`${n}의 약수는 모두 몇 개일까요?`,answer:divisors.length,explanation:`${n}의 약수는 ${divisors.join(', ')}이므로 모두 ${divisors.length}개예요.`};}
   if(type===1){const d=rand(3,12), n=rand(1,d-1), m=rand(1,d-1);return {topic:'분수의 덧셈',text:`${n}/${d} + ${m}/${d} = ?`,answer:(n+m)/d,explanation:`분모가 같으면 분자끼리 더해요. (${n} + ${m})/${d} = ${fraction(n+m,d)}`};}
@@ -16,7 +27,7 @@ function makeQuestion(grade){
  if(type===2){const c=rand(2,8);return {topic:'직육면체의 부피',text:`가로 ${a}cm, 세로 ${b}cm, 높이 ${c}cm인 직육면체의 부피는 몇 cm³일까요?`,answer:a*b*c,explanation:`부피 = 가로 × 세로 × 높이 = ${a} × ${b} × ${c} = ${a*b*c}cm³`};}
  return {topic:'비례식',text:`${a} : ${b} = ${a*3} : □ 에서 □에 들어갈 수는?`,answer:b*3,explanation:`${a}에 3을 곱하면 ${a*3}이므로 ${b}에도 3을 곱해요. ${b} × 3 = ${b*3}`};
 }
-function parseAnswer(value){const s=value.trim();if(/^[+-]?\d+\s*\/\s*[+-]?\d+$/.test(s)){const [n,d]=s.split('/').map(Number);return d===0?NaN:n/d;}return /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(s)?Number(s):NaN;}
+function parseAnswer(value){const s=String(value).normalize('NFKC').replaceAll('−','-').replaceAll('÷','/').trim();if(/^[+-]?\d+\s*\/\s*[+-]?\d+$/.test(s)){const [n,d]=s.split('/').map(Number);return d===0?NaN:n/d;}return /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(s)?Number(s):NaN;}
 function isCorrect(value,answer){const n=parseAnswer(value);return Number.isFinite(n)&&Math.abs(n-answer)<1e-8;}
-const api={makeQuestion,parseAnswer,isCorrect};if(typeof module!=='undefined')module.exports=api;else root.MathGame=api;
+const api={makeQuestion,parseAnswer,isCorrect,topics,hints};if(typeof module!=='undefined')module.exports=api;else root.MathGame=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
